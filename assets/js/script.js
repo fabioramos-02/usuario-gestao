@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Função para exibir o modal
+    // Função para exibir o modal de mensagens
     function showModal(message) {
         const modal = document.getElementById('modal');
         const modalMessage = document.getElementById('modalMessage');
@@ -7,12 +7,12 @@ document.addEventListener('DOMContentLoaded', function () {
         modal.style.display = 'block';
 
         const closeBtn = document.querySelector('.close-btn');
-        closeBtn.onclick = function() {
+        closeBtn.onclick = function () {
             modal.style.display = 'none';
         }
     }
 
-    // Função para fazer login usando JSON Server
+    // LOGIN
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', function (e) {
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            fetch('http://localhost:5000/users?username=' + username + '&password=' + password)
+            fetch(`http://localhost:5000/users?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.length > 0) {
@@ -29,38 +29,119 @@ document.addEventListener('DOMContentLoaded', function () {
                         showModal('Credenciais incorretas.');
                     }
                 })
-                .catch(error => showModal('Erro ao tentar login.'));
+                .catch(() => {
+                    showModal('Erro ao tentar login.');
+                });
         });
     }
 
-    // Função para registrar um novo usuário no JSON Server
+    // CADASTRO / EDIÇÃO
     const registerForm = document.getElementById('registerForm');
     if (registerForm) {
         registerForm.addEventListener('submit', function (e) {
             e.preventDefault();
-            const newUsername = document.getElementById('newUsername').value;
-            const newPassword = document.getElementById('newPassword').value;
+            const form = this;
+            const newUsername = document.getElementById('newUsername').value.trim();
+            const newPassword = document.getElementById('newPassword').value.trim();
 
-            const user = {
-                username: newUsername,
-                password: newPassword
+            if (!newUsername || !newPassword) {
+                alert('Preencha todos os campos.');
+                return;
+            }
+
+            const usuario = {
+                nome: newUsername,
+                senha: newPassword
             };
 
-            fetch('http://localhost:5000/users', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(user)
-            })
-            .then(response => response.json())
-            .then(data => {
-                showModal(`Usuário ${data.username} cadastrado com sucesso!`);
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 2500);
-            })
-            .catch(error => showModal('Erro ao tentar cadastrar usuário.'));
+            const idEditando = form.dataset.idEditando;
+
+            if (idEditando) {
+                // Editar usuário
+                fetch(`http://localhost:3000/usuarios/${idEditando}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(usuario)
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Erro ao atualizar usuário.');
+                        alert(`Usuário ${newUsername} atualizado com sucesso!`);
+                        delete form.dataset.idEditando;
+                        document.querySelector('#registerForm button').textContent = 'Cadastrar';
+                        form.reset();
+                        listarUsuarios();
+                    })
+                    .catch(error => alert(error.message));
+            } else {
+                // Cadastrar novo usuário
+                fetch('http://localhost:3000/usuarios', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(usuario)
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Erro ao cadastrar usuário.');
+                        alert(`Usuário ${newUsername} cadastrado com sucesso!`);
+                        form.reset();
+                        listarUsuarios();
+                    })
+                    .catch(error => alert(error.message));
+            }
         });
     }
+
+    // LISTAR USUÁRIOS
+    function listarUsuarios() {
+        fetch('http://localhost:3000/usuarios')
+            .then(res => res.json())
+            .then(usuarios => {
+                const lista = document.getElementById('listaUsuarios');
+                if (!lista) return; // Se não existir elemento, aborta
+                lista.innerHTML = '';
+
+                usuarios.forEach(usuario => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        ${usuario.nome}
+                        <button onclick="editarUsuario(${usuario.id})">Editar</button>
+                        <button onclick="excluirUsuario(${usuario.id})">Excluir</button>
+                    `;
+                    lista.appendChild(li);
+                });
+            })
+            .catch(() => {
+                alert('Erro ao carregar lista de usuários.');
+            });
+    }
+
+    // Expor as funções editarUsuario e excluirUsuario no escopo global
+    window.editarUsuario = function (id) {
+        fetch(`http://localhost:3000/usuarios/${id}`)
+            .then(res => res.json())
+            .then(usuario => {
+                document.getElementById('newUsername').value = usuario.nome;
+                document.getElementById('newPassword').value = usuario.senha;
+                const form = document.getElementById('registerForm');
+                form.dataset.idEditando = usuario.id;
+                document.querySelector('#registerForm button').textContent = 'Salvar Edição';
+            })
+            .catch(() => {
+                alert('Erro ao carregar dados do usuário.');
+            });
+    }
+
+    window.excluirUsuario = function (id) {
+        if (confirm('Tem certeza que deseja excluir este usuário?')) {
+            fetch(`http://localhost:3000/usuarios/${id}`, { method: 'DELETE' })
+                .then(response => {
+                    if (!response.ok) throw new Error('Erro ao excluir usuário.');
+                    alert('Usuário excluído com sucesso!');
+                    listarUsuarios();
+                })
+                .catch(error => alert(error.message));
+        }
+    }
+
+    // Iniciar listagem automaticamente se a lista existir na página
+    listarUsuarios();
 });
