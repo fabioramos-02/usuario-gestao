@@ -12,3 +12,11 @@ Este projeto consiste em um **Sistema de Gestão de Usuários**, onde os usuári
 - **HTML5**: Para estruturação da página.
 - **CSS3**: Para estilização e layout da interface.
 - **JavaScript**: Para funcionalidade do login e cadastro (simulados).
+
+## Como Rodar o Projeto
+
+1. **Clone o Repositório**:
+   Primeiro, clone o repositório para o seu computador:
+   ```bash
+   git clone https://github.com/fabioramos-02/usuario-gestao.git
+   cd usuario-gestao
