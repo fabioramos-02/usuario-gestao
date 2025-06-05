@@ -1,5 +1,23 @@
-// Função para simular login (apenas para fins demonstrativos)
+// LOGIN
 document.getElementById('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    fetch('http://localhost:3000/usuarios')
+        .then(res => res.json())
+        .then(usuarios => {
+            const usuario = usuarios.find(u => u.nome === username && u.senha === password);
+            if (usuario) {
+                alert('Login bem-sucedido!');
+            } else {
+                alert('Credenciais incorretas.');
+            }
+        });
+});
+
+// CADASTRO / EDIÇÃO
+document.getElementById('registerForm').addEventListener('submit', function (e) {
     e.preventDefault();
     const form = this;
     const newUsername = document.getElementById('newUsername').value;
@@ -13,7 +31,7 @@ document.getElementById('loginForm').addEventListener('submit', function (e) {
     const idEditando = form.dataset.idEditando;
 
     if (idEditando) {
-        // Edição
+        // Editar usuário
         fetch(`http://localhost:3000/usuarios/${idEditando}`, {
             method: 'PUT',
             headers: {
@@ -29,7 +47,7 @@ document.getElementById('loginForm').addEventListener('submit', function (e) {
             listarUsuarios();
         });
     } else {
-        // Cadastro
+        // Cadastrar novo usuário
         fetch('http://localhost:3000/usuarios', {
             method: 'POST',
             headers: {
@@ -47,6 +65,7 @@ document.getElementById('loginForm').addEventListener('submit', function (e) {
     }
 });
 
+// LISTAR USUÁRIOS
 function listarUsuarios() {
     fetch('http://localhost:3000/usuarios')
         .then(res => res.json())
@@ -66,9 +85,7 @@ function listarUsuarios() {
         });
 }
 
-// Chamar a listagem quando a página carrega
-document.addEventListener('DOMContentLoaded', listarUsuarios);
-
+// EDITAR
 function editarUsuario(id) {
     fetch(`http://localhost:3000/usuarios/${id}`)
         .then(res => res.json())
@@ -80,3 +97,22 @@ function editarUsuario(id) {
             document.querySelector('#registerForm button').textContent = 'Salvar Edição';
         });
 }
+
+// EXCLUIR
+function excluirUsuario(id) {
+    if (confirm('Tem certeza que deseja excluir este usuário?')) {
+        fetch(`http://localhost:3000/usuarios/${id}`, {
+            method: 'DELETE'
+        })
+        .then(() => {
+            alert('Usuário excluído com sucesso!');
+            listarUsuarios();
+        })
+        .catch(() => {
+            alert('Erro ao excluir usuário.');
+        });
+    }
+}
+
+// INICIAR LISTAGEM AUTOMÁTICA
+document.addEventListener('DOMContentLoaded', listarUsuarios);
