@@ -1,40 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestão de Usuários</title>
+    <title>Cadastro - Sistema de Gestão de Usuários</title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
+
 <body>
     <header>
-        <h1>Sistema de Gestão de Usuários</h1>
+        <h1>Cadastro - Sistema de Gestão de Usuários</h1>
     </header>
-    <main>
-        <section id="login">
-            <h2>Login</h2>
-            <form id="loginForm">
-                <label for="username">Usuário:</label>
-                <input type="text" id="username" name="username" required>
-                
-                <label for="password">Senha:</label>
-                <input type="password" id="password" name="password" required>
-                
-                <button type="submit">Entrar</button>
-            </form>
-        </section>
 
+    <main>
         <section id="register">
             <h2>Cadastrar Novo Usuário</h2>
             <form id="registerForm">
                 <label for="newUsername">Novo Usuário:</label>
                 <input type="text" id="newUsername" name="newUsername" required>
-                
+
                 <label for="newPassword">Nova Senha:</label>
                 <input type="password" id="newPassword" name="newPassword" required>
-                
+
                 <button type="submit">Cadastrar</button>
             </form>
+            <p>Já tem uma conta? <a href="login.html">Faça login aqui</a></p>
         </section>
         <section id="userList">
             <h2>Usuários Cadastrados</h2>
@@ -42,10 +33,20 @@
         </section>
     </main>
 
+    <!-- Modal de Feedback -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <p id="modalMessage"></p>
+        </div>
+    </div>
+
     <footer>
         <p>&copy; 2025 Sistema de Gestão de Usuários</p>
     </footer>
 
-    <script src="assets/js/script.js"></script>
+    <script src="/assets/js/script.js"></script>
+
 </body>
+
 </html>

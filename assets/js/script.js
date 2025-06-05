@@ -1,118 +1,147 @@
-// LOGIN
-document.getElementById('loginForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+document.addEventListener('DOMContentLoaded', function () {
+    // Função para exibir o modal de mensagens
+    function showModal(message) {
+        const modal = document.getElementById('modal');
+        const modalMessage = document.getElementById('modalMessage');
+        modalMessage.textContent = message;
+        modal.style.display = 'block';
 
-    fetch('http://localhost:3000/usuarios')
-        .then(res => res.json())
-        .then(usuarios => {
-            const usuario = usuarios.find(u => u.nome === username && u.senha === password);
-            if (usuario) {
-                alert('Login bem-sucedido!');
+        const closeBtn = document.querySelector('.close-btn');
+        closeBtn.onclick = function () {
+            modal.style.display = 'none';
+        }
+    }
+
+    // LOGIN
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            fetch(`http://localhost:5000/users?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        window.location.href = 'home.html';
+                    } else {
+                        showModal('Credenciais incorretas.');
+                    }
+                })
+                .catch(() => {
+                    showModal('Erro ao tentar login.');
+                });
+        });
+    }
+
+    // CADASTRO / EDIÇÃO
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        registerForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const form = this;
+            const newUsername = document.getElementById('newUsername').value.trim();
+            const newPassword = document.getElementById('newPassword').value.trim();
+
+            if (!newUsername || !newPassword) {
+                alert('Preencha todos os campos.');
+                return;
+            }
+
+            const usuario = {
+                nome: newUsername,
+                senha: newPassword
+            };
+
+            const idEditando = form.dataset.idEditando;
+
+            if (idEditando) {
+                // Editar usuário
+                fetch(`http://localhost:3000/usuarios/${idEditando}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(usuario)
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Erro ao atualizar usuário.');
+                        alert(`Usuário ${newUsername} atualizado com sucesso!`);
+                        delete form.dataset.idEditando;
+                        document.querySelector('#registerForm button').textContent = 'Cadastrar';
+                        form.reset();
+                        listarUsuarios();
+                    })
+                    .catch(error => alert(error.message));
             } else {
-                alert('Credenciais incorretas.');
+                // Cadastrar novo usuário
+                fetch('http://localhost:3000/usuarios', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(usuario)
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Erro ao cadastrar usuário.');
+                        alert(`Usuário ${newUsername} cadastrado com sucesso!`);
+                        form.reset();
+                        listarUsuarios();
+                    })
+                    .catch(error => alert(error.message));
             }
         });
-});
-
-// CADASTRO / EDIÇÃO
-document.getElementById('registerForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const form = this;
-    const newUsername = document.getElementById('newUsername').value;
-    const newPassword = document.getElementById('newPassword').value;
-
-    const usuario = {
-        nome: newUsername,
-        senha: newPassword
-    };
-
-    const idEditando = form.dataset.idEditando;
-
-    if (idEditando) {
-        // Editar usuário
-        fetch(`http://localhost:3000/usuarios/${idEditando}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(usuario)
-        })
-        .then(() => {
-            alert(`Usuário ${newUsername} atualizado com sucesso!`);
-            delete form.dataset.idEditando;
-            document.querySelector('#registerForm button').textContent = 'Cadastrar';
-            form.reset();
-            listarUsuarios();
-        });
-    } else {
-        // Cadastrar novo usuário
-        fetch('http://localhost:3000/usuarios', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(usuario)
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Erro ao cadastrar usuário.');
-            alert(`Usuário ${newUsername} cadastrado com sucesso!`);
-            form.reset();
-            listarUsuarios();
-        })
-        .catch(error => alert(error.message));
     }
-});
 
-// LISTAR USUÁRIOS
-function listarUsuarios() {
-    fetch('http://localhost:3000/usuarios')
-        .then(res => res.json())
-        .then(usuarios => {
-            const lista = document.getElementById('listaUsuarios');
-            lista.innerHTML = '';
+    // LISTAR USUÁRIOS
+    function listarUsuarios() {
+        fetch('http://localhost:3000/usuarios')
+            .then(res => res.json())
+            .then(usuarios => {
+                const lista = document.getElementById('listaUsuarios');
+                if (!lista) return; // Se não existir elemento, aborta
+                lista.innerHTML = '';
 
-            usuarios.forEach(usuario => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    ${usuario.nome}
-                    <button onclick="editarUsuario(${usuario.id})">Editar</button>
-                    <button onclick="excluirUsuario(${usuario.id})">Excluir</button>
-                `;
-                lista.appendChild(li);
+                usuarios.forEach(usuario => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        ${usuario.nome}
+                        <button onclick="editarUsuario(${usuario.id})">Editar</button>
+                        <button onclick="excluirUsuario(${usuario.id})">Excluir</button>
+                    `;
+                    lista.appendChild(li);
+                });
+            })
+            .catch(() => {
+                alert('Erro ao carregar lista de usuários.');
             });
-        });
-}
-
-// EDITAR
-function editarUsuario(id) {
-    fetch(`http://localhost:3000/usuarios/${id}`)
-        .then(res => res.json())
-        .then(usuario => {
-            document.getElementById('newUsername').value = usuario.nome;
-            document.getElementById('newPassword').value = usuario.senha;
-            const form = document.getElementById('registerForm');
-            form.dataset.idEditando = usuario.id;
-            document.querySelector('#registerForm button').textContent = 'Salvar Edição';
-        });
-}
-
-// EXCLUIR
-function excluirUsuario(id) {
-    if (confirm('Tem certeza que deseja excluir este usuário?')) {
-        fetch(`http://localhost:3000/usuarios/${id}`, {
-            method: 'DELETE'
-        })
-        .then(() => {
-            alert('Usuário excluído com sucesso!');
-            listarUsuarios();
-        })
-        .catch(() => {
-            alert('Erro ao excluir usuário.');
-        });
     }
-}
 
-// INICIAR LISTAGEM AUTOMÁTICA
-document.addEventListener('DOMContentLoaded', listarUsuarios);
+    // Expor as funções editarUsuario e excluirUsuario no escopo global
+    window.editarUsuario = function (id) {
+        fetch(`http://localhost:3000/usuarios/${id}`)
+            .then(res => res.json())
+            .then(usuario => {
+                document.getElementById('newUsername').value = usuario.nome;
+                document.getElementById('newPassword').value = usuario.senha;
+                const form = document.getElementById('registerForm');
+                form.dataset.idEditando = usuario.id;
+                document.querySelector('#registerForm button').textContent = 'Salvar Edição';
+            })
+            .catch(() => {
+                alert('Erro ao carregar dados do usuário.');
+            });
+    }
+
+    window.excluirUsuario = function (id) {
+        if (confirm('Tem certeza que deseja excluir este usuário?')) {
+            fetch(`http://localhost:3000/usuarios/${id}`, { method: 'DELETE' })
+                .then(response => {
+                    if (!response.ok) throw new Error('Erro ao excluir usuário.');
+                    alert('Usuário excluído com sucesso!');
+                    listarUsuarios();
+                })
+                .catch(error => alert(error.message));
+        }
+    }
+
+    // Iniciar listagem automaticamente se a lista existir na página
+    listarUsuarios();
+});
