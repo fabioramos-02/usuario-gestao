@@ -26,7 +26,7 @@ Este projeto consiste em um **Sistema de Gestão de Usuários**, onde os usuári
       ```
 
    3. **Inicie o JSON Server**:
-      Execute o comando abaixo para rodar o servidor fake na porta 5000 usando o arquivo `db.json`:
+      Execute o comando abaixo para rodar o servidor fake na porta 3003 usando o arquivo `db.json`:
       ```bash
       json-server --watch db.json --port 3003
       ```
