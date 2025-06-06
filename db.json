@@ -1,3 +1,84 @@
 {
-  "usuarios": []
+  "usuarios": [
+    {
+      "id": "e649",
+      "nome": "teste",
+      "senha": "123"
+    },
+    {
+      "id": "602c",
+      "nome": "ze",
+      "senha": "213"
+    },
+    {
+      "id": "2b6c",
+      "nome": "teste",
+      "senha": "213"
+    },
+    {
+      "id": "d70d",
+      "nome": "gabriel nogs",
+      "senha": "teste"
+    },
+    {
+      "id": "46d6",
+      "nome": "ass",
+      "senha": "esare"
+    },
+    {
+      "id": "d0c8",
+      "nome": "teste1",
+      "senha": "teste"
+    }
+  ],
+  "colaboradores": [
+    {
+      "id": "1",
+      "nome": "Ana Silva",
+      "contato": "11999999999",
+      "userId": "e649"
+    },
+    {
+      "id": "2",
+      "nome": "Bruno Souza",
+      "contato": "21988888888",
+      "userId": "602c"
+    },
+    {
+      "id": "3",
+      "nome": "Carla Pereira",
+      "contato": "31977777777",
+      "userId": "2b6c"
+    },
+    {
+      "id": "4",
+      "nome": "Diego Costa",
+      "contato": "41966666666",
+      "userId": "d70d"
+    },
+    {
+      "id": "5",
+      "nome": "Elisa Ramos",
+      "contato": "51955555555",
+      "userId": "e649"
+    },
+    {
+      "id": "6d80",
+      "nome": "jose",
+      "contato": "21321",
+      "userId": "602c"
+    },
+    {
+      "id": "07ad",
+      "nome": "fan",
+      "contato": "312",
+      "userId": "2b6c"
+    },
+    {
+      "id": "bb10",
+      "nome": "teste",
+      "contato": "12321",
+      "userId": "d0c8"
+    }
+  ]
 }
