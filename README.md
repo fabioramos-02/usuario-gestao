@@ -20,15 +20,13 @@ Este projeto consiste em um **Sistema de Gestão de Usuários**, onde os usuári
    ```bash
    git clone https://github.com/fabioramos-02/usuario-gestao.git
    cd usuario-gestao
-
    2. **Instale o JSON Server** (caso ainda não tenha):
       ```bash
       npm install -g json-server
       ```
 
    3. **Inicie o JSON Server**:
-      Execute o comando abaixo na raiz do projeto para iniciar o servidor fake:
+      Execute o comando abaixo para rodar o servidor fake na porta 3003 usando o arquivo `db.json`:
       ```bash
-      json-server --watch db.json --port 3001
+      json-server --watch db.json --port 3003
       ```
-      O arquivo `db.json` deve conter os dados simulados da aplicação. O servidor estará disponível em [http://localhost:3001](http://localhost:3001).
